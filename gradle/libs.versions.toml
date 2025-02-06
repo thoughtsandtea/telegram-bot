@@ -1,0 +1,14 @@
+[versions]
+kotlin = "2.1.0"
+kotlinSerialization = "1.8.0"
+tgbotapi = "23.1.2"
+ktscheduler = "1.1.6"
+
+[libraries]
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
+tgbotapi = { module = "dev.inmo:tgbotapi", version.ref = "tgbotapi" }
+ktscheduler = { module = "com.github.Pool-Of-Tears:KtScheduler", version.ref = "ktscheduler" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
