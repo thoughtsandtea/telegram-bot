@@ -1,22 +1,82 @@
 package dev.teaguild.thoughtsntea
 
-import dev.inmo.kslog.common.logger
+import dev.inmo.kslog.common.TagLogger
+import dev.inmo.kslog.common.i
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
+import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
-import dev.starry.ktscheduler.job.Job
+import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
+import dev.inmo.tgbotapi.extensions.utils.fromUserOrNull
+import dev.inmo.tgbotapi.types.chat.GroupChat
+import dev.inmo.tgbotapi.types.toChatId
+import dev.inmo.tgbotapi.utils.PreviewFeature
+import dev.teaguild.thoughtsntea.commands.setConfigCommand
+import dev.teaguild.thoughtsntea.commands.showConfigCommand
+import kotlinx.coroutines.*
+import java.util.*
 
-suspend fun main() {
-    val token = checkNotNull(System.getenv("THOUGHTSNTEA_TELEGRAM_BOT_TOKEN")) {
-        "No environment variable THOUGHTSNTEA_TELEGRAM_BOT_TOKEN"
+
+private val logger = TagLogger("Main")
+
+/**
+ * Bot state machine.
+ *
+ * [DEFAULT] -> [ANNOUNCED] <-> [ENOUGH] -> [LOCKED] -> [DEFAULT]
+ */
+enum class TastingState {
+    DEFAULT,
+    ANNOUNCED,
+    ENOUGH,
+    LOCKED,
+}
+
+@OptIn(PreviewFeature::class)
+fun main() = runBlocking {
+    Locale.setDefault(Locale.US)
+
+    val session = run {
+        val token = getenvOrFail("THOUGHTSNTEA_TELEGRAM_BOT_TOKEN")
+        val targetChatID = getenvOrFail("THOUGHTSNTEA_TELEGRAM_CHAT_ID").toLong().toChatId()
+        val bot = telegramBot(token)
+        TeaTastingSession(this, bot, targetChatID, loadConfig())
     }
-    Job
 
-    loadConfig()
+    logger.i("Loaded config: ${session.config.value}")
 
-    val bot = telegramBot(token)
+    observeConfigToBotScheduler(session)
+    observeConfigToSave(session)
 
-    bot.buildBehaviourWithLongPolling {
-        println(getMe())
+    session.bot.buildBehaviourWithLongPolling {
+        val me = getMe()
+        logger.i(me)
+
+        // Admin commands
+        showConfigCommand(session)
+        setConfigCommand(session)
+
+        onCommand("help") { message ->
+            if (message.chat !is GroupChat || message.chat.id != session.targetChatID) return@onCommand
+            reply(message, """""")
+        }
+
+        // User commands
+
+        onCommand("join") { message ->
+            if (message.chat !is GroupChat || message.chat.id != session.targetChatID) return@onCommand
+            if (session.tastingState.value != TastingState.ANNOUNCED) {
+                reply(message, "New participants are not registered now.")
+                logger.i(message)
+            }
+            if (session.tastingState.value == TastingState.DEFAULT) return@onCommand
+            session.addParticipant(message.fromUserOrNull()?.from?.id ?: return@onCommand)
+            reply(message, "")
+        }
+
+        onCommand("cancel") { message ->
+            if (message.chat !is GroupChat || message.chat.id != session.targetChatID) return@onCommand
+            // TODO
+        }
+
     }.join()
 }

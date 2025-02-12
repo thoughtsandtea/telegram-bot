@@ -1,4 +1,5 @@
 plugins {
+    application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -14,7 +15,13 @@ repositories {
 dependencies {
     implementation(libs.tgbotapi)
     implementation(libs.ktscheduler)
-    implementation(libs.kotlin.serialization.json)
+    implementation(libs.kotlinx.serialization.json)
+    runtimeOnly(libs.logback.core)
+    runtimeOnly(libs.logback.classic)
 }
 
 kotlin.jvmToolchain(17)
+
+application {
+    mainClass = "dev.teaguild.thoughtsntea.MainKt"
+}

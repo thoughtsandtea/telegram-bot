@@ -1,13 +1,16 @@
 [versions]
 kotlin = "2.1.0"
-kotlinSerialization = "1.8.0"
+kotlinxSerialization = "1.8.0"
+logback = "1.5.16"
 tgbotapi = "23.1.2"
 ktscheduler = "1.1.6"
 
 [libraries]
-kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 tgbotapi = { module = "dev.inmo:tgbotapi", version.ref = "tgbotapi" }
 ktscheduler = { module = "com.github.Pool-Of-Tears:KtScheduler", version.ref = "ktscheduler" }
+logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
+logback-classic = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
