@@ -1,9 +1,8 @@
-name: CI/CD Pipeline
+name: Dependency Submission
 
 on:
   push:
     branches: [ master ]
-  pull_request:
 
 jobs:
   dependency-submission:
