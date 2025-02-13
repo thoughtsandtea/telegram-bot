@@ -10,12 +10,13 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onComman
 import dev.inmo.tgbotapi.extensions.utils.fromUserOrNull
 import dev.inmo.tgbotapi.types.chat.GroupChat
 import dev.inmo.tgbotapi.types.toChatId
-import dev.inmo.tgbotapi.utils.PreviewFeature
 import dev.teaguild.thoughtsntea.commands.setConfigCommand
 import dev.teaguild.thoughtsntea.commands.showConfigCommand
+import dev.teaguild.thoughtsntea.listeners.observeConfigToBotScheduler
+import dev.teaguild.thoughtsntea.listeners.observeConfigToSave
+import dev.teaguild.thoughtsntea.listeners.observeParticipantsCount
 import kotlinx.coroutines.*
 import java.util.*
-
 
 private val logger = TagLogger("Main")
 
@@ -31,7 +32,6 @@ enum class TastingState {
     LOCKED,
 }
 
-@OptIn(PreviewFeature::class)
 fun main() = runBlocking {
     Locale.setDefault(Locale.US)
 
@@ -46,6 +46,7 @@ fun main() = runBlocking {
 
     observeConfigToBotScheduler(session)
     observeConfigToSave(session)
+    observeParticipantsCount(session)
 
     session.bot.buildBehaviourWithLongPolling {
         val me = getMe()
@@ -63,19 +64,24 @@ fun main() = runBlocking {
         // User commands
 
         onCommand("join") { message ->
-            if (message.chat !is GroupChat || message.chat.id != session.targetChatID) return@onCommand
+            if (!message.inGroupChat(session.targetChatID)) return@onCommand
             if (session.tastingState.value != TastingState.ANNOUNCED) {
-                reply(message, "New participants are not registered now.")
-                logger.i(message)
+                reply(message, "New participants are not being registered now.")
+                return@onCommand
             }
             if (session.tastingState.value == TastingState.DEFAULT) return@onCommand
-            session.addParticipant(message.fromUserOrNull()?.from?.id ?: return@onCommand)
-            reply(message, "")
+            val userId = message.fromUserOrNull()?.from?.id ?: return@onCommand
+            if (!session.addParticipant(userId))
+                reply(message, "You are already registered.")
         }
 
-        onCommand("cancel") { message ->
-            if (message.chat !is GroupChat || message.chat.id != session.targetChatID) return@onCommand
-            // TODO
+        onCommand("leave") { message ->
+            if (!message.inGroupChat(session.targetChatID)) return@onCommand
+            if (session.tastingState.value != TastingState.ENOUGH || session.tastingState.value != TastingState.ANNOUNCED) {
+                return@onCommand
+            }
+            val userId = message.fromUserOrNull()?.from?.id ?: return@onCommand
+            session.removeParticipant(userId)
         }
 
     }.join()

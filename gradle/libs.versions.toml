@@ -9,8 +9,7 @@ ktscheduler = "1.1.6"
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 tgbotapi = { module = "dev.inmo:tgbotapi", version.ref = "tgbotapi" }
 ktscheduler = { module = "com.github.Pool-Of-Tears:KtScheduler", version.ref = "ktscheduler" }
-logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
-logback-classic = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

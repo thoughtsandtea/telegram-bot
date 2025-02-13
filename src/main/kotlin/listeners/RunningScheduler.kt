@@ -1,9 +1,11 @@
-package dev.teaguild.thoughtsntea
+package dev.teaguild.thoughtsntea.listeners
 
 import dev.inmo.kslog.common.TagLogger
 import dev.inmo.kslog.common.i
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.starry.ktscheduler.scheduler.KtScheduler
+import dev.teaguild.thoughtsntea.TastingState
+import dev.teaguild.thoughtsntea.TeaTastingSession
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -11,7 +13,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.plus
 
-private val logger = TagLogger("Scheduler")
+private val logger = TagLogger("RunningScheduler")
 
 private object Jobs {
     const val TASTING = "Tasting"
@@ -26,12 +28,14 @@ internal fun observeConfigToBotScheduler(session: TeaTastingSession) = with(sess
             val scheduler = KtScheduler(timeZone = value.timeZone)
             if (!value.botActive) return@map scheduler
 
+            // TODO do custom trigger for days of weeks probably
+
             scheduler.runDaily(Jobs.ASK, value.askTime) {
                 logger.i("Asking")
                 bot.send(
                     targetChatID,
                     "Good morning! Who wants to join today's tea tasting at ${value.tastingTime}? " +
-                            "Use /reg to register. Slots are limited to ${value.maxParticipants} participants."
+                            "Use /join to register. Slots are limited to ${value.maxParticipants} participants."
                 )
                 check(tastingState.value == TastingState.DEFAULT && participants.value.isEmpty()) {
                     "Dirty state"
@@ -53,7 +57,7 @@ internal fun observeConfigToBotScheduler(session: TeaTastingSession) = with(sess
 
             scheduler.runDaily(Jobs.TASTING, value.tastingTime) {
                 logger.i("Tasting")
-                bot.send(targetChatID, "1")
+                bot.send(targetChatID, "Tasting")
             }
 
             return@map scheduler
