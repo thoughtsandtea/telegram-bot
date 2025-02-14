@@ -13,11 +13,9 @@ import kotlinx.coroutines.withContext
 
 private val logger = TagLogger("SavingConfig")
 
-internal fun observeConfigToSave(session: TeaTastingSession) {
-    session.config
-        .onEach { value ->
-            logger.i { value }
-            withContext(Dispatchers.IO) { saveConfig(value) }
-        }
-        .launchIn(session.scope + CoroutineName("savingConfig"))
-}
+internal fun observeConfigToSave(session: TeaTastingSession) = session.config
+    .onEach { value ->
+        logger.i { value }
+        withContext(Dispatchers.IO) { saveConfig(value) }
+    }
+    .launchIn(session.scope + CoroutineName("savingConfig"))

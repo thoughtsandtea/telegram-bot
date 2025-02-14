@@ -3,9 +3,12 @@ package dev.teaguild.thoughtsntea.listeners
 import dev.inmo.kslog.common.TagLogger
 import dev.inmo.kslog.common.i
 import dev.inmo.tgbotapi.extensions.api.send.send
+import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.message.HTML
 import dev.starry.ktscheduler.scheduler.KtScheduler
 import dev.teaguild.thoughtsntea.TastingState
 import dev.teaguild.thoughtsntea.TeaTastingSession
+import dev.teaguild.thoughtsntea.utils.runWeekly
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -28,9 +31,7 @@ internal fun observeConfigToBotScheduler(session: TeaTastingSession) = with(sess
             val scheduler = KtScheduler(timeZone = value.timeZone)
             if (!value.botActive) return@map scheduler
 
-            // TODO do custom trigger for days of weeks probably
-
-            scheduler.runDaily(Jobs.ASK, value.askTime) {
+            scheduler.runWeekly(jobId = Jobs.ASK, dailyTime = value.askTime, daysOfWeek = value.daysOfWeek) {
                 logger.i("Asking")
                 bot.send(
                     targetChatID,
@@ -43,21 +44,36 @@ internal fun observeConfigToBotScheduler(session: TeaTastingSession) = with(sess
                 setTastingState(TastingState.ANNOUNCED)
             }
 
-            for (reminder in value.reminders) {
-                scheduler.runDaily("${Jobs.NOTIFY} $reminder", value.tastingTime - reminder) {
-                    logger.i("Reminding $reminder before")
-                    bot.send(targetChatID, "1")
+            for (reminder in value.reminders)
+                scheduler.runWeekly(
+                    jobId = "${Jobs.NOTIFY} $reminder",
+                    dailyTime = value.tastingTime - reminder,
+                    daysOfWeek = value.daysOfWeek,
+                ) {
+                    bot.send(
+                        targetChatID,
+                        //language=HTML
+                        "Reminder: tea tasting starts in ${reminder.toMinutes()} min! Current participants: ${
+                            pingString(participants.value.values)
+                        }",
+                        parseMode = HTML,
+                    )
                 }
+
+            scheduler.runWeekly(
+                jobId = Jobs.LOCKOUT,
+                dailyTime = value.tastingTime - value.lockoutBefore,
+                daysOfWeek = value.daysOfWeek,
+            ) {
+                bot.send(targetChatID, "No more registrations or cancellations allowed. Final list of participants: ${
+                    pingString(participants.value.values)
+                }")
+                setTastingState(TastingState.LOCKED)
             }
 
-            scheduler.runDaily(Jobs.LOCKOUT, value.askTime){
-                logger.i("Lockout")
-                bot.send(targetChatID, "Lockout")
-            }
-
-            scheduler.runDaily(Jobs.TASTING, value.tastingTime) {
-                logger.i("Tasting")
-                bot.send(targetChatID, "Tasting")
+            scheduler.runWeekly(jobId = Jobs.TASTING, dailyTime = value.tastingTime, daysOfWeek = value.daysOfWeek) {
+                bot.send(targetChatID, "Tea tasting is now.")
+                setTastingState(TastingState.DEFAULT)
             }
 
             return@map scheduler
@@ -72,4 +88,22 @@ internal fun observeConfigToBotScheduler(session: TeaTastingSession) = with(sess
             curr?.start()
         }
         .launchIn(scope + CoroutineName("runningScheduler"))
+}
+
+private fun pingString(users: Collection<User>): CharSequence {
+    val sb = StringBuilder()
+    users.joinTo(sb) { user ->
+        StringBuilder().apply {
+            if (user.username != null) {
+                append(user.username)
+            } else {
+                append("<a href=\"tg://user?id=")
+                append(user.id)
+                append("\">")
+                append(user.firstName)
+                append("</a>")
+            }
+        }
+    }
+    return sb
 }

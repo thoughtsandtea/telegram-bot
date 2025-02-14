@@ -5,8 +5,8 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
 import dev.inmo.tgbotapi.types.message.HTML
 import dev.teaguild.thoughtsntea.TeaTastingSession
-import dev.teaguild.thoughtsntea.inGroupChat
-import dev.teaguild.thoughtsntea.isFromAdministratorUser
+import dev.teaguild.thoughtsntea.utils.inGroupChat
+import dev.teaguild.thoughtsntea.utils.isFromAdministratorUser
 import java.time.format.TextStyle
 import java.util.*
 
@@ -23,7 +23,7 @@ internal suspend fun BehaviourContext.showConfigCommand(
                 message, """
                         Current bot configuration:
                          - <code>daysOfWeek</code>: <code>${
-                    daysOfWeek.joinToString(", ") { d -> d.getDisplayName(TextStyle.FULL, Locale.getDefault()) }
+                    daysOfWeek.joinToString(",") { d -> d.getDisplayName(TextStyle.FULL, Locale.getDefault()) }
                 }</code>
                          - <code>askTime</code>: <code>$askTime</code>
                          - <code>maxParticipants</code>: <code>$maxParticipants</code>

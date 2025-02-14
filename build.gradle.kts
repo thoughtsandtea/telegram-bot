@@ -20,7 +20,7 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(23)
     sourceSets.all {
         languageSettings.optIn("dev.inmo.tgbotapi.utils.PreviewFeature")
     }

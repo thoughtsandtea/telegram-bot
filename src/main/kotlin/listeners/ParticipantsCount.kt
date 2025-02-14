@@ -14,6 +14,7 @@ internal fun observeParticipantsCount(session: TeaTastingSession) = with(session
             if (tastingState.value == TastingState.ANNOUNCED)
                 when {
                     value.size > config.value.maxParticipants -> error("Illegally many participants.")
+
                     value.size == config.value.maxParticipants -> {
                         setTastingState(TastingState.ENOUGH)
                         bot.send(targetChatID, "Enough participants are registered (${value.size}).")

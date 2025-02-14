@@ -25,52 +25,20 @@ jobs:
         with:
           name: gradle-dist
           path: build/install/thoughtsntea-bot
-#
-#  build-and-deploy:
-#    needs: build-gradle
-#    if: github.ref == 'refs/heads/master'
+#  push-store-image:
 #    runs-on: ubuntu-latest
 #    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v3
+#      - name: 'Checkout GitHub Action'
+#        uses: actions/checkout@main
 #
-#      - name: Download distribution artifact
-#        uses: actions/download-artifact@v3
+#      - name: 'Login to GitHub Container Registry'
+#        uses: docker/login-action@v1
 #        with:
-#          name: gradle-dist
-#          path: build/install/thoughtsntea-bot
+#          registry: ghcr.io
+#          username: ${{github.actor}}
+#          password: ${{secrets.GITHUB_TOKEN}}
 #
-#      - name: Build Docker image
+#      - name: 'Build Inventory Image'
 #        run: |
-#          docker build -t thoughtsntea-bot .
-#
-#      - name: Save Docker image as artifact
-#        run: |
-#          docker save thoughtsntea-bot -o /tmp/thoughtsntea-bot.tar
-#
-#      - name: Upload Docker image artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: docker-image
-#          path: /tmp/thoughtsntea-bot.tar
-#
-#      - name: Transfer Docker image to server
-#        uses: appleboy/scp-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST }}
-#          username: ${{ secrets.SSH_USER }}
-#          key: ${{ secrets.SSH_KEY }}
-#          source: "/tmp/thoughtsntea-bot.tar"
-#          target: "/tmp/thoughtsntea-bot.tar"
-#
-#      - name: Deploy on Hetzner Server
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST }}
-#          username: ${{ secrets.SSH_USER }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            docker load -i /tmp/thoughtsntea-bot.tar
-#            docker stop thoughtsntea-bot || true
-#            docker rm thoughtsntea-bot || true
-#            docker run -d --name thoughtsntea-bot thoughtsntea-bot
+#          docker build . --tag ghcr.io/<your-GitHub-username>/store:latest
+#          docker push ghcr.io/<your-GitHub-username>/store:latest

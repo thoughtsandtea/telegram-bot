@@ -5,8 +5,9 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
 import dev.inmo.tgbotapi.types.message.HTML
 import dev.teaguild.thoughtsntea.TeaTastingSession
-import dev.teaguild.thoughtsntea.inGroupChat
-import dev.teaguild.thoughtsntea.isFromAdministratorUser
+import dev.teaguild.thoughtsntea.utils.emptyEnumSet
+import dev.teaguild.thoughtsntea.utils.inGroupChat
+import dev.teaguild.thoughtsntea.utils.isFromAdministratorUser
 import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.ZoneId
@@ -31,13 +32,19 @@ internal suspend fun BehaviourContext.setConfigCommand(
 
         when (property) {
             "daysOfWeek" -> {
+                DayOfWeek.entries
                 try {
                     val days = text.split(",")
                         .map { it.trim().uppercase() }
-                        .map { DayOfWeek.valueOf(it) }
+                        .mapTo(emptyEnumSet()) { DayOfWeek.valueOf(it) }
                     updateConfig { prev -> prev.copy(daysOfWeek = days) }
                 } catch (_: IllegalArgumentException) {
-                    reply(message, "Invalid day(s) of the week. Please use valid day names (e.g., MONDAY, TUESDAY).")
+                    //language=HTML
+                    reply(
+                        message,
+                        "Invalid day(s) of the week. Please use valid day names (e.g., <code>MONDAY</code>, <code>TUESDAY</code>).",
+                        parseMode = HTML,
+                    )
                     return@onCommand
                 }
             }
@@ -50,7 +57,12 @@ internal suspend fun BehaviourContext.setConfigCommand(
                         else prev.copy(tastingTime = parsedTime)
                     }
                 } catch (_: DateTimeParseException) {
-                    reply(message, "Invalid time format. Please use HH:mm (e.g., 14:30).")
+                    //language=HTML
+                    reply(
+                        message,
+                        "Invalid time format. Please use HH:mm (e.g., <code>14:30</code>).",
+                        parseMode = HTML,
+                    )
                     return@onCommand
                 }
             }
@@ -85,7 +97,12 @@ internal suspend fun BehaviourContext.setConfigCommand(
             "botActive" -> {
                 val isActive = text.lowercase().toBooleanStrictOrNull()
                 if (isActive == null) {
-                    reply(message, "Invalid value for bot active. Use true or false.")
+                    //language=HTML
+                    reply(
+                        message,
+                        "Invalid value for bot active. Use <code>true</code> or <code>false</code>.",
+                        parseMode = HTML
+                    )
                     return@onCommand
                 }
                 updateConfig { prev -> prev.copy(botActive = isActive) }

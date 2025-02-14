@@ -1,10 +1,13 @@
 package dev.teaguild.thoughtsntea
 
-import kotlinx.serialization.*
+import dev.teaguild.thoughtsntea.utils.emptyEnumSet
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
 import org.jetbrains.annotations.Blocking
 import java.io.IOException
 import java.time.DayOfWeek
@@ -15,7 +18,6 @@ import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
-import kotlin.jvm.Throws
 
 private val configFile = Path("thoughtsntea.json")
 
@@ -35,7 +37,7 @@ private data class TeaTastingConfigSurrogate(
 
 @Serializable(with = TeaTastingConfigSerializer::class)
 data class TeaTastingConfig(
-    val daysOfWeek: List<DayOfWeek> = listOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY),
+    val daysOfWeek: Set<DayOfWeek> = setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY),
     val askTime: LocalTime = LocalTime.parse("07:00"),
     val tastingTime: LocalTime = LocalTime.parse("16:00"),
     val maxParticipants: Int = 5,
@@ -73,7 +75,7 @@ private object TeaTastingConfigSerializer : KSerializer<TeaTastingConfig> {
     override fun deserialize(decoder: Decoder): TeaTastingConfig {
         val surrogate = decoder.decodeSerializableValue(TeaTastingConfigSurrogate.serializer())
         return TeaTastingConfig(
-            daysOfWeek = surrogate.daysOfWeek.map { DayOfWeek.valueOf(it) },
+            daysOfWeek = surrogate.daysOfWeek.mapTo(emptyEnumSet()) { DayOfWeek.valueOf(it) },
             askTime = LocalTime.parse(surrogate.askTimeString),
             tastingTime = LocalTime.parse(surrogate.tastingTimeString),
             maxParticipants = surrogate.maxParticipants,

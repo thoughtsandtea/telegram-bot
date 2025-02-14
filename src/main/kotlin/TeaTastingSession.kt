@@ -3,6 +3,7 @@ package dev.teaguild.thoughtsntea
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.UserId
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,11 +14,10 @@ internal class TeaTastingSession(
     val bot: TelegramBot,
     val targetChatID: ChatId,
     config: TeaTastingConfig = TeaTastingConfig.Default,
-    participants: Set<UserId> = emptySet(),
     tastingState: TastingState = TastingState.DEFAULT,
 ) {
     private val _config: MutableStateFlow<TeaTastingConfig> = MutableStateFlow(config)
-    private val _participants: MutableStateFlow<Set<UserId>> = MutableStateFlow(participants)
+    private val _participants: MutableStateFlow<Map<UserId, User>> = MutableStateFlow(emptyMap())
     private val _tastingState: MutableStateFlow<TastingState> = MutableStateFlow(tastingState)
 
     val config: StateFlow<TeaTastingConfig>
@@ -26,13 +26,13 @@ internal class TeaTastingSession(
     val tastingState: StateFlow<TastingState>
         get() = _tastingState
 
-    val participants: StateFlow<Set<UserId>>
+    val participants: StateFlow<Map<UserId, User>>
         get() = _participants
 
-    fun addParticipant(userId: UserId): Boolean = if (userId in _participants.value) {
+    fun addParticipant(userId: UserId, user: User): Boolean = if (userId in _participants.value) {
         false
     } else {
-        _participants.update { it + userId }
+        _participants.update { it + (userId to user) }
         true
     }
 
@@ -44,7 +44,7 @@ internal class TeaTastingSession(
     }
 
     fun clearParticipants() {
-        _participants.value = emptySet()
+        _participants.value = emptyMap()
     }
 
     fun setTastingState(tastingState: TastingState) {
