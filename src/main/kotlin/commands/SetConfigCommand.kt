@@ -3,11 +3,12 @@ package dev.teaguild.thoughtsntea.commands
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
-import dev.inmo.tgbotapi.types.message.HTML
 import dev.teaguild.thoughtsntea.TeaTastingSession
 import dev.teaguild.thoughtsntea.utils.emptyEnumSet
 import dev.teaguild.thoughtsntea.utils.inGroupChat
 import dev.teaguild.thoughtsntea.utils.isFromAdministratorUser
+import dev.teaguild.thoughtsntea.utils.replyHtml
+import java.time.DateTimeException
 import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.ZoneId
@@ -32,36 +33,34 @@ internal suspend fun BehaviourContext.setConfigCommand(
 
         when (property) {
             "daysOfWeek" -> {
-                DayOfWeek.entries
-                try {
-                    val days = text.split(",")
-                        .map { it.trim().uppercase() }
-                        .mapTo(emptyEnumSet()) { DayOfWeek.valueOf(it) }
-                    updateConfig { prev -> prev.copy(daysOfWeek = days) }
-                } catch (_: IllegalArgumentException) {
-                    //language=HTML
-                    reply(
-                        message,
-                        "Invalid day(s) of the week. Please use valid day names (e.g., <code>MONDAY</code>, <code>TUESDAY</code>).",
-                        parseMode = HTML,
-                    )
-                    return@onCommand
-                }
+                val days = text.split(",")
+                    .map { it.trim().uppercase() }
+                    .mapTo(emptyEnumSet()) { day ->
+                        DayOfWeek.entries.find { it.name == day } ?: run {
+                            replyHtml(
+                                message,
+                                "Invalid day(s) of the week. Please use valid day names (e.g., <code>MONDAY</code>, <code>TUESDAY</code>).",
+                            )
+                            return@onCommand
+                        }
+                    }
+                updateConfig { prev -> prev.copy(daysOfWeek = days) }
             }
 
             "askTime", "tastingTime" -> {
                 try {
                     val parsedTime = LocalTime.parse(text)
                     updateConfig { prev ->
-                        if (property == "askTime") prev.copy(askTime = parsedTime)
-                        else prev.copy(tastingTime = parsedTime)
+                        when (property) {
+                            "askTime" -> prev.copy(askTime = parsedTime)
+                            "tastingTime" -> prev.copy(tastingTime = parsedTime)
+                            else -> throw IllegalStateException()
+                        }
                     }
                 } catch (_: DateTimeParseException) {
-                    //language=HTML
-                    reply(
+                    replyHtml(
                         message,
                         "Invalid time format. Please use HH:mm (e.g., <code>14:30</code>).",
-                        parseMode = HTML,
                     )
                     return@onCommand
                 }
@@ -87,7 +86,7 @@ internal suspend fun BehaviourContext.setConfigCommand(
 
             "lockoutBefore" -> {
                 val lockout = text.toLongOrNull()
-                if (lockout == null || lockout <= 0) {
+                if (lockout == null || lockout < 0) {
                     reply(message, "Invalid number for lockout period.")
                     return@onCommand
                 }
@@ -97,11 +96,9 @@ internal suspend fun BehaviourContext.setConfigCommand(
             "botActive" -> {
                 val isActive = text.lowercase().toBooleanStrictOrNull()
                 if (isActive == null) {
-                    //language=HTML
-                    reply(
+                    replyHtml(
                         message,
                         "Invalid value for bot active. Use <code>true</code> or <code>false</code>.",
-                        parseMode = HTML
                     )
                     return@onCommand
                 }
@@ -112,7 +109,7 @@ internal suspend fun BehaviourContext.setConfigCommand(
                 try {
                     val timeZone = ZoneId.of(text)
                     updateConfig { prev -> prev.copy(timeZone = timeZone) }
-                } catch (_: Exception) {
+                } catch (_: DateTimeException) {
                     reply(message, "Invalid time zone: $text")
                     return@onCommand
                 }
@@ -124,8 +121,6 @@ internal suspend fun BehaviourContext.setConfigCommand(
             }
         }
 
-
-        //language=HTML
-        reply(message, "Configuration updated: <code>$property</code> → <code>$text</code>", parseMode = HTML)
+        replyHtml(message, "Configuration updated: <code>$property</code> → <code>$text</code>")
     }
 }

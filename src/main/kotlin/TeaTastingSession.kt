@@ -47,8 +47,19 @@ internal class TeaTastingSession(
         _participants.value = emptyMap()
     }
 
-    fun setTastingState(tastingState: TastingState) {
-        _tastingState.value = tastingState
+    fun setTastingState(next: TastingState) {
+        val prev = _tastingState.value
+        if (prev != next) {
+            check(
+                when (prev) {
+                    TastingState.DEFAULT -> next == TastingState.ANNOUNCED
+                    TastingState.ANNOUNCED -> next == TastingState.ENOUGH || next == TastingState.LOCKED
+                    TastingState.ENOUGH -> next == TastingState.ANNOUNCED || next == TastingState.LOCKED
+                    TastingState.LOCKED -> next == TastingState.DEFAULT
+                }
+            ) { "Illegal state move from $prev to $next" }
+        }
+        _tastingState.value = next
     }
 
     inline fun updateConfig(function: (TeaTastingConfig) -> TeaTastingConfig) = _config.update(function)

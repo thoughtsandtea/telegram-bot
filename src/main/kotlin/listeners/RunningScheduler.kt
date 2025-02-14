@@ -4,11 +4,11 @@ import dev.inmo.kslog.common.TagLogger
 import dev.inmo.kslog.common.i
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.types.chat.User
-import dev.inmo.tgbotapi.types.message.HTML
 import dev.starry.ktscheduler.scheduler.KtScheduler
 import dev.teaguild.thoughtsntea.TastingState
 import dev.teaguild.thoughtsntea.TeaTastingSession
 import dev.teaguild.thoughtsntea.utils.runWeekly
+import dev.teaguild.thoughtsntea.utils.sendHtml
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -29,6 +29,15 @@ internal fun observeConfigToBotScheduler(session: TeaTastingSession) = with(sess
     config
         .map { value ->
             val scheduler = KtScheduler(timeZone = value.timeZone)
+
+            if (value.askTime >= value.tastingTime) {
+                bot.sendHtml(
+                    targetChatID,
+                    "Inconsistent time: <code>askTime ${value.askTime}</code> is same or after <code>tastingTime ${value.tastingTime}</code>",
+                )
+                return@map scheduler
+            }
+
             if (!value.botActive) return@map scheduler
 
             scheduler.runWeekly(jobId = Jobs.ASK, dailyTime = value.askTime, daysOfWeek = value.daysOfWeek) {
@@ -44,31 +53,45 @@ internal fun observeConfigToBotScheduler(session: TeaTastingSession) = with(sess
                 setTastingState(TastingState.ANNOUNCED)
             }
 
-            for (reminder in value.reminders)
+            for (reminder in value.reminders) {
+                val reminderTime = value.tastingTime - reminder
+
+                if (value.askTime < reminderTime && reminderTime < value.tastingTime) {
+                    scheduler.runWeekly(
+                        jobId = "${Jobs.NOTIFY} $reminder",
+                        dailyTime = reminderTime,
+                        daysOfWeek = value.daysOfWeek,
+                    ) {
+                        bot.sendHtml(
+                            targetChatID,
+                            "Reminder: tea tasting starts in ${reminder.toMinutes()} min! Current participants: ${
+                                pingString(participants.value.values)
+                            }",
+                        )
+                    }
+                }
+            }
+
+            val lockoutTime = value.tastingTime - value.lockoutBefore
+
+            if (value.askTime < lockoutTime && lockoutTime < value.tastingTime) {
                 scheduler.runWeekly(
-                    jobId = "${Jobs.NOTIFY} $reminder",
-                    dailyTime = value.tastingTime - reminder,
+                    jobId = Jobs.LOCKOUT,
+                    dailyTime = lockoutTime,
                     daysOfWeek = value.daysOfWeek,
                 ) {
-                    bot.send(
-                        targetChatID,
-                        //language=HTML
-                        "Reminder: tea tasting starts in ${reminder.toMinutes()} min! Current participants: ${
+                    bot.sendHtml(
+                        targetChatID, "No more registrations or cancellations allowed. Final list of participants: ${
                             pingString(participants.value.values)
-                        }",
-                        parseMode = HTML,
+                        }"
                     )
+                    setTastingState(TastingState.LOCKED)
                 }
-
-            scheduler.runWeekly(
-                jobId = Jobs.LOCKOUT,
-                dailyTime = value.tastingTime - value.lockoutBefore,
-                daysOfWeek = value.daysOfWeek,
-            ) {
-                bot.send(targetChatID, "No more registrations or cancellations allowed. Final list of participants: ${
-                    pingString(participants.value.values)
-                }")
-                setTastingState(TastingState.LOCKED)
+            } else {
+                bot.sendHtml(
+                    targetChatID,
+                    "Inconsistent time: <code>lockoutBefore ${value.lockoutBefore}</code> is before <code>askTime ${value.askTime}</code> or after <code>tastingTime ${value.tastingTime}</code>.",
+                )
             }
 
             scheduler.runWeekly(jobId = Jobs.TASTING, dailyTime = value.tastingTime, daysOfWeek = value.daysOfWeek) {

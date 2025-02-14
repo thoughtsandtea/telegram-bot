@@ -1,6 +1,7 @@
 package dev.teaguild.thoughtsntea
 
 import dev.teaguild.thoughtsntea.utils.emptyEnumSet
+import dev.teaguild.thoughtsntea.utils.enumSetOf
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -37,7 +38,7 @@ private data class TeaTastingConfigSurrogate(
 
 @Serializable(with = TeaTastingConfigSerializer::class)
 data class TeaTastingConfig(
-    val daysOfWeek: Set<DayOfWeek> = setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY),
+    val daysOfWeek: Set<DayOfWeek> = enumSetOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY),
     val askTime: LocalTime = LocalTime.parse("07:00"),
     val tastingTime: LocalTime = LocalTime.parse("16:00"),
     val maxParticipants: Int = 5,
@@ -46,8 +47,8 @@ data class TeaTastingConfig(
     val botActive: Boolean = true,
     val timeZone: ZoneId = ZoneId.of("UTC")
 ) {
-    val reminders get() = remindersMinutes.map { Duration.ofMinutes(it) }
-    val lockoutBefore get() = Duration.ofMinutes(lockoutBeforeMinutes)
+    val reminders: List<Duration> get() = remindersMinutes.map { Duration.ofMinutes(it) }
+    val lockoutBefore: Duration get() = Duration.ofMinutes(lockoutBeforeMinutes)
 
     companion object {
         val Default = TeaTastingConfig()
@@ -108,4 +109,3 @@ fun loadConfig(default: TeaTastingConfig = TeaTastingConfig.Default): TeaTasting
         default
     }
 }
-

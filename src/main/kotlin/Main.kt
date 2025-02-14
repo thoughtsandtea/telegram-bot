@@ -14,6 +14,7 @@ import dev.teaguild.thoughtsntea.commands.showConfigCommand
 import dev.teaguild.thoughtsntea.listeners.observeConfigToBotScheduler
 import dev.teaguild.thoughtsntea.listeners.observeConfigToSave
 import dev.teaguild.thoughtsntea.listeners.observeParticipantsCount
+import dev.teaguild.thoughtsntea.listeners.observeSessionToLog
 import dev.teaguild.thoughtsntea.utils.getenvOrFail
 import dev.teaguild.thoughtsntea.utils.inGroupChat
 import dev.teaguild.thoughtsntea.utils.isFromAdministratorUser
@@ -44,10 +45,9 @@ fun main() = runBlocking {
         TeaTastingSession(this, bot, targetChatID, loadConfig())
     }
 
-    logger.i("Loaded config: ${session.config.value}")
-
     observeConfigToBotScheduler(session)
     observeConfigToSave(session)
+    observeSessionToLog(session)
     observeParticipantsCount(session)
 
     session.bot.buildBehaviourWithLongPolling {
@@ -68,7 +68,7 @@ fun main() = runBlocking {
 //            if (!message.inGroupChat(session.targetChatID)) return@onCommand
 //        }
 
-        // User     commands
+        // User commands
 
         onCommand("start") { message ->
             reply(message, """""")
