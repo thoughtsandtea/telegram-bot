@@ -53,8 +53,8 @@ internal class TeaTastingSession(
             check(
                 when (prev) {
                     TastingState.DEFAULT -> next == TastingState.ANNOUNCED
-                    TastingState.ANNOUNCED -> next == TastingState.ENOUGH || next == TastingState.LOCKED
-                    TastingState.ENOUGH -> next == TastingState.ANNOUNCED || next == TastingState.LOCKED
+                    TastingState.ANNOUNCED -> next == TastingState.ENOUGH || next == TastingState.LOCKED || next == TastingState.DEFAULT
+                    TastingState.ENOUGH -> next == TastingState.ANNOUNCED || next == TastingState.LOCKED || next == TastingState.DEFAULT
                     TastingState.LOCKED -> next == TastingState.DEFAULT
                 }
             ) { "Illegal state move from $prev to $next" }

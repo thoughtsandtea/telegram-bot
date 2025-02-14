@@ -21,6 +21,7 @@ internal fun observeParticipantsCount(session: TeaTastingSession) = with(session
                     }
 
                     value.size < config.value.maxParticipants -> {
+                        if (tastingState.value == TastingState.ENOUGH) setTastingState(TastingState.ANNOUNCED)
                         val free = config.value.maxParticipants - value.size
                         if (free == 1) {
                             bot.send(targetChatID, "There is 1 free place.")
