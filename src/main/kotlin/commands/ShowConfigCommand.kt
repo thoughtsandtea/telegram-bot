@@ -19,7 +19,7 @@ internal suspend fun BehaviourContext.showConfigCommand(
         with(config.value) {
             replyHtml(
                 message, """
-                        Current bot configuration:
+                        <b>Current bot configuration</b>:
                          - <code>daysOfWeek</code>: <code>${
                     daysOfWeek.joinToString(",") { d -> d.getDisplayName(TextStyle.FULL, Locale.getDefault()) }
                 }</code>

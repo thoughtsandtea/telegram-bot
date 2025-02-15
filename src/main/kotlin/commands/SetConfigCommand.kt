@@ -39,7 +39,7 @@ internal suspend fun BehaviourContext.setConfigCommand(
                         DayOfWeek.entries.find { it.name == day } ?: run {
                             replyHtml(
                                 message,
-                                "Invalid day(s) of the week. Please use valid day names (e.g., <code>MONDAY</code>, <code>TUESDAY</code>).",
+                                "Invalid day(s) of the week. Please use valid day names (e.g., <code>monday,tuesday</code>).",
                             )
                             return@onCommand
                         }

@@ -72,26 +72,28 @@ internal fun observeConfigToBotScheduler(session: TeaTastingSession) = with(sess
                 }
             }
 
-            val lockoutTime = value.tastingTime - value.lockoutBefore
-
-            if (value.askTime < lockoutTime && lockoutTime < value.tastingTime) {
-                scheduler.runWeekly(
-                    jobId = Jobs.LOCKOUT,
-                    dailyTime = lockoutTime,
-                    daysOfWeek = value.daysOfWeek,
-                ) {
+            if (value.lockoutBeforeMinutes != 0L) {
+                val lockoutTime = value.tastingTime - value.lockoutBefore
+                if (value.askTime < lockoutTime && lockoutTime < value.tastingTime) {
+                    scheduler.runWeekly(
+                        jobId = Jobs.LOCKOUT,
+                        dailyTime = lockoutTime,
+                        daysOfWeek = value.daysOfWeek,
+                    ) {
+                        bot.sendHtml(
+                            targetChatID,
+                            "No more registrations or cancellations allowed. Final list of participants: ${
+                                pingString(participants.value.values)
+                            }"
+                        )
+                        setTastingState(TastingState.LOCKED)
+                    }
+                } else {
                     bot.sendHtml(
-                        targetChatID, "No more registrations or cancellations allowed. Final list of participants: ${
-                            pingString(participants.value.values)
-                        }"
-                    )
-                    setTastingState(TastingState.LOCKED)
+                        targetChatID,
+                        "Inconsistent time: <code>lockoutBefore ${lockoutTime}</code> is before or equal <code>askTime ${value.askTime}</code> or after <code>tastingTime ${value.tastingTime}</code>.",
+                        )
                 }
-            } else {
-                bot.sendHtml(
-                    targetChatID,
-                    "Inconsistent time: <code>lockoutBefore ${value.lockoutBefore}</code> is before <code>askTime ${value.askTime}</code> or after <code>tastingTime ${value.tastingTime}</code>.",
-                )
             }
 
             scheduler.runWeekly(jobId = Jobs.TASTING, dailyTime = value.tastingTime, daysOfWeek = value.daysOfWeek) {
