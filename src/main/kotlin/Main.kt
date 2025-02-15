@@ -102,7 +102,7 @@ fun main() = runBlocking {
 
         This bot helps organize regular tea tasting sessions in your group. Here's how it works:
 
-        1️⃣ On scheduled <days></days>, the bot will ask who wants to join the tea tasting
+        1️⃣ On scheduled days, the bot will ask who wants to join the tea tasting
         2️⃣ Use /join to register for today's session
         3️⃣ Use /leave to unregister if your plans change
         4️⃣ The bot will notify everyone when it's time for tea!

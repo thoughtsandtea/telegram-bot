@@ -123,7 +123,7 @@ private fun pingString(users: Collection<User>): CharSequence {
                 append(user.username)
             } else {
                 append("<a href=\"tg://user?id=")
-                append(user.id)
+                append(user.id.chatId.toString())
                 append("\">")
                 append(user.firstName)
                 append("</a>")
