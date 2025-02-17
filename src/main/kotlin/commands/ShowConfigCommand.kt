@@ -13,7 +13,6 @@ internal suspend fun BehaviourContext.showConfigCommand(
     session: TeaTastingSession,
 ) = onCommand("showconfig") { message ->
     with(session) {
-        if (!message.inGroupChat(targetChatID)) return@onCommand
         if (!message.isFromAdministratorUser(bot, targetChatID)) return@onCommand
 
         with(config.value) {

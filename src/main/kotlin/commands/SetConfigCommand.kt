@@ -18,7 +18,6 @@ internal suspend fun BehaviourContext.setConfigCommand(
     session: TeaTastingSession,
 ) = onCommand("setconfig".toRegex(), requireOnlyCommandInMessage = false) { message ->
     with(session) {
-        if (!message.inGroupChat(targetChatID)) return@onCommand
         if (!message.isFromAdministratorUser(bot, targetChatID)) return@onCommand
 
         val args = message.content.text.split(" ", limit = 3)
