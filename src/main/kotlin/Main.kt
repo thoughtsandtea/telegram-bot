@@ -5,10 +5,13 @@ import dev.inmo.kslog.common.i
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
 import dev.inmo.tgbotapi.extensions.api.send.reply
+import dev.inmo.tgbotapi.extensions.api.send.setMessageReaction
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
 import dev.inmo.tgbotapi.extensions.utils.fromUserOrNull
+import dev.inmo.tgbotapi.types.reactions.Reaction
 import dev.inmo.tgbotapi.types.toChatId
+import dev.teaguild.thoughtsntea.TastingState.*
 import dev.teaguild.thoughtsntea.commands.setConfigCommand
 import dev.teaguild.thoughtsntea.commands.showConfigCommand
 import dev.teaguild.thoughtsntea.listeners.observeConfigToBotScheduler
@@ -19,7 +22,7 @@ import dev.teaguild.thoughtsntea.utils.getenvOrFail
 import dev.teaguild.thoughtsntea.utils.inGroupChat
 import dev.teaguild.thoughtsntea.utils.isFromAdministratorUser
 import dev.teaguild.thoughtsntea.utils.replyHtml
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 private val logger = TagLogger("Main")
@@ -53,7 +56,7 @@ fun main() = runBlocking {
 
     session.bot.buildBehaviourWithLongPolling {
         val me = getMe()
-        logger.i(me)
+        logger.i { me }
 
         // Admin commands
 
@@ -112,7 +115,7 @@ fun main() = runBlocking {
         /leave - Leave today's tea tasting session
 
         Enjoy your tea! 🍵
-        """.trimIndent()
+        """.trimIndent(),
             )
         }
 
@@ -127,8 +130,11 @@ fun main() = runBlocking {
             }
 
             if (session.tastingState.value == TastingState.DEFAULT) return@onCommand
-            if (!session.addParticipant(fromId, from))
+            if (session.addParticipant(fromId, from)) {
+                bot.setMessageReaction(message, Reaction.Emoji("\uD83D\uDC33"))
+            } else {
                 reply(message, reply(message, "✋ You're already registered for today's tea tasting!"))
+            }
         }
 
         onCommand("leave") { message ->

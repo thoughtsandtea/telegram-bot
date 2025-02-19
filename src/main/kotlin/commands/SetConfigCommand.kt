@@ -5,7 +5,6 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
 import dev.teaguild.thoughtsntea.TeaTastingSession
 import dev.teaguild.thoughtsntea.utils.emptyEnumSet
-import dev.teaguild.thoughtsntea.utils.inGroupChat
 import dev.teaguild.thoughtsntea.utils.isFromAdministratorUser
 import dev.teaguild.thoughtsntea.utils.replyHtml
 import java.time.DateTimeException
