@@ -50,5 +50,15 @@ jobs:
       - name: 'Build Inventory Image'
         if: github.ref == 'refs/heads/master'
         run: |
-          docker build . --tag ghcr.io/thoughtsandtea/store:${{ steps.get-version.outputs.VERSION }}
-          docker push ghcr.io/thoughtsandtea/store:${{ steps.get-version.outputs.VERSION }}
+          docker build . --tag ghcr.io/thoughtsandtea/telegram-bot:${{ steps.get-version.outputs.VERSION }}
+          docker push ghcr.io/thoughtsandtea/telegram-bot:${{ steps.get-version.outputs.VERSION }}
+      - name: 'Make package public'
+        if: github.ref == 'refs/heads/master'
+        run: |
+          echo "Making package public..."
+          curl -X PATCH \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/orgs/thoughtsandtea/packages/container/telegram-bot/visibility \
+            -d '{"visibility":"public"}'
