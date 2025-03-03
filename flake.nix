@@ -18,23 +18,23 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        jdk = pkgs.jdk21;
+        jdk = pkgs.jdk23; # Using JDK 23 as specified in build.gradle.kts
         
-        telegram-bot = gradle2nix.builders.${system}.buildGradlePackage {
-          pname = "telegram-bot";
-          version = "0.0.1";
-          
+        gradle2nixBuild = gradle2nix.builders.${system};
+        project = gradle2nixBuild.gradleProject {
+          name = "telegram-bot";
           src = ./.;
-          
           lockFile = ./gradle.lock;
+        };
+        
+        telegram-bot = project.buildGradlePackage {
+          buildJdk = jdk;
+          gradleJdk = jdk;
           
-          gradleInstallFlags = [ "installDist" ];
-          dontStrip = true;
+          # Run the installDist Gradle task
+          gradleTask = "installDist";
           
-          buildPhase = ''
-            gradle --no-daemon installDist
-          '';
-                    
+          # Properly copy the distribution to the output
           installPhase = ''
             mkdir -p $out/bin
             mkdir -p $out/lib
