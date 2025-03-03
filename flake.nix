@@ -8,43 +8,47 @@
       url = "github:edolstra/flake-compat";
       flake = false;
     };
+    buildGradleApplication = {
+      url = "github:raphiz/buildGradleApplication";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, flake-compat, buildGradleApplication, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [
+            buildGradleApplication.overlays.default
+          ];
+        };
         jdk = pkgs.temurin-bin-23;
         
-        version = builtins.readFile ./VERSION;
+        # Use hardcoded version since VERSION is in .gitignore
+        version = "0.0.1";
         appName = "thoughtsntea-bot";
         
         # Create application package
-        app = pkgs.stdenv.mkDerivation {
+        app = pkgs.buildGradleApplication {
           pname = appName;
           version = version;
-          
           src = ./.;
           
-          nativeBuildInputs = [
-            jdk
+          jdk = jdk;
+          
+          # Standard maven repositories
+          repositories = [
+            "https://repo1.maven.org/maven2/"
+            "https://plugins.gradle.org/m2/"
+            "https://jitpack.io/"
           ];
           
-          buildPhase = ''
-            export GRADLE_USER_HOME=$(mktemp -d)
-            ./gradlew installDist
-          '';
-          
-          installPhase = ''
-            mkdir -p $out
-            cp -r build/install/thoughtsntea-bot/* $out/
-          '';
-          
-          meta = {
+          meta = with pkgs.lib; {
             description = "Telegram bot for organizing tea tasting sessions";
             homepage = "https://github.com/thoughtsandtea/telegram-bot";
-            license = pkgs.lib.licenses.mit;
-            platforms = pkgs.lib.platforms.all;
+            license = licenses.mit;
+            platforms = platforms.all;
           };
         };
         
