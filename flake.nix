@@ -27,7 +27,12 @@
           lockFile = ./gradle.lock;
           
           jdk = jdk;
-          gradleFlags = [ "installDist" ];
+          buildJdk = jdk;
+          gradleFlags = [ 
+            "-Dorg.gradle.java.home=${jdk}/lib/openjdk"
+            "-Dorg.gradle.jvmargs=-Xmx2g"
+          ];
+          gradleBuildFlags = [ "installDist" ];
           
           # Properly copy the distribution to the output
           installPhase = ''
@@ -37,12 +42,12 @@
             # First try the thoughtsntea-bot directory
             if [ -d build/install/thoughtsntea-bot ]; then
               cp -r build/install/thoughtsntea-bot/lib/* $out/lib/
-              cp build/install/thoughtsntea-bot/bin/* $out/bin/
+              cp -r build/install/thoughtsntea-bot/bin/* $out/bin/
               chmod +x $out/bin/*
             # Or try the telegram-bot directory
             elif [ -d build/install/telegram-bot ]; then
               cp -r build/install/telegram-bot/lib/* $out/lib/
-              cp build/install/telegram-bot/bin/* $out/bin/
+              cp -r build/install/telegram-bot/bin/* $out/bin/
               chmod +x $out/bin/*
             else
               echo "No installation directory found"
