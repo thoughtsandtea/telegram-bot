@@ -20,19 +20,14 @@
         pkgs = nixpkgs.legacyPackages.${system};
         jdk = pkgs.jdk23; # Using JDK 23 as specified in build.gradle.kts
         
-        gradle2nixBuild = gradle2nix.builders.${system};
-        project = gradle2nixBuild.gradleProject {
-          name = "telegram-bot";
+        telegram-bot = gradle2nix.builders.${system}.buildGradlePackage {
+          pname = "telegram-bot";
+          version = "0.0.1";
           src = ./.;
           lockFile = ./gradle.lock;
-        };
-        
-        telegram-bot = project.buildGradlePackage {
-          buildJdk = jdk;
-          gradleJdk = jdk;
           
-          # Run the installDist Gradle task
-          gradleTask = "installDist";
+          jdk = jdk;
+          gradleFlags = [ "installDist" ];
           
           # Properly copy the distribution to the output
           installPhase = ''
