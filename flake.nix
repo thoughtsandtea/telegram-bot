@@ -30,6 +30,10 @@
           
           gradleInstallFlags = [ "installDist" ];
           dontStrip = true;
+          
+          buildPhase = ''
+            gradle --no-daemon installDist
+          '';
                     
           installPhase = ''
             mkdir -p $out/bin
