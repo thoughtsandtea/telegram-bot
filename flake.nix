@@ -64,20 +64,46 @@
           };
         };
         
+        # Create empty config file to ensure directory structure
+        emptyConfig = pkgs.writeTextFile {
+          name = "thoughtsntea.json";
+          text = "{}";
+        };
+        
         dockerImage = pkgs.dockerTools.buildImage {
           name = "telegram-bot";
           tag = "latest";
           
           copyToRoot = pkgs.buildEnv {
             name = "image-root";
-            paths = [ telegram-bot pkgs.bashInteractive pkgs.coreutils ];
-            pathsToLink = [ "/bin" "/lib" ];
+            paths = [ 
+              telegram-bot 
+              jdk 
+              pkgs.bashInteractive 
+              pkgs.coreutils     # Includes echo, printf, etc.
+              pkgs.findutils     # Includes xargs
+              pkgs.gnused        # Includes sed
+              pkgs.gnugrep       # Includes grep 
+              pkgs.which         # Includes which
+              (pkgs.runCommand "app-dirs" {} ''
+                mkdir -p $out/app
+                # Don't create the config file directly, just the directory
+                # so Docker can mount a volume there
+              '')
+            ];
+            pathsToLink = [ "/bin" "/lib" "/app" ];
           };
           
           config = {
             Cmd = [ "${telegram-bot}/bin/thoughtsntea-bot" ];
+            Env = [
+              "JAVA_HOME=${jdk}/lib/openjdk"
+              "PATH=${jdk}/lib/openjdk/bin:/bin"
+            ];
+            WorkingDir = "/app";
+            # Match the original Docker volume configuration
             Volumes = {
-              "/thoughtsntea.json" = {};
+              "/app/thoughtsntea.json" = {};
             };
           };
         };
