@@ -22,7 +22,7 @@
         
         telegram-bot = gradle2nix.builders.${system}.buildGradlePackage {
           pname = "telegram-bot";
-          version = builtins.readFile ./VERSION;
+          version = "0.0.1";
           
           src = ./.;
           
