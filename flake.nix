@@ -32,7 +32,9 @@
                     
           installPhase = ''
             mkdir -p $out
-            cp -r build/install/thoughtsntea-bot/* $out/
+            if [ -d build/install/thoughtsntea-bot ]; then
+              cp -r build/install/thoughtsntea-bot/* $out/
+            fi
           '';
           
           meta = with pkgs.lib; {
