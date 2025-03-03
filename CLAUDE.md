@@ -1,6 +1,8 @@
 # TeaClub Telegram Bot - Developer Guide
 
 ## Build & Run Commands
+
+## Gradle Commands
 ```
 # Build the project
 ./gradlew build
@@ -10,7 +12,25 @@
 
 # Create distribution package
 ./gradlew installDist
+```
 
+## Nix Commands
+```
+# Enter development environment
+nix develop
+
+# Build the project
+nix build
+
+# Run the application
+nix run
+
+# Check flake
+nix flake check
+```
+
+## Docker Commands
+```
 # Build Docker image
 docker build -t thoughtsntea-bot .
 

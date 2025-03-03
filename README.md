@@ -29,6 +29,8 @@ The bot requires the following environment variables:
 
 ### Installation
 
+#### Using Gradle
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/TeaClub/telegram-bot.git
@@ -43,6 +45,34 @@ The bot requires the following environment variables:
 3. Run the application:
    ```bash
    ./gradlew run
+   ```
+
+#### Using Nix (recommended)
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/TeaClub/telegram-bot.git
+   cd telegram-bot
+   ```
+
+2. If you have direnv installed (recommended):
+   ```bash
+   direnv allow
+   ```
+   
+   Or directly activate the Nix shell:
+   ```bash
+   nix develop
+   ```
+
+3. Build the project:
+   ```bash
+   nix build
+   ```
+
+4. Run the application (after setting up environment variables):
+   ```bash
+   nix run
    ```
 
 ### Docker
