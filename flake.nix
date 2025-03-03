@@ -29,11 +29,26 @@
           lockFile = ./gradle.lock;
           
           gradleInstallFlags = [ "installDist" ];
+          dontStrip = true;
                     
           installPhase = ''
-            mkdir -p $out
+            mkdir -p $out/bin
+            mkdir -p $out/lib
+
+            # First try the thoughtsntea-bot directory
             if [ -d build/install/thoughtsntea-bot ]; then
-              cp -r build/install/thoughtsntea-bot/* $out/
+              cp -r build/install/thoughtsntea-bot/lib/* $out/lib/
+              cp build/install/thoughtsntea-bot/bin/* $out/bin/
+              chmod +x $out/bin/*
+            # Or try the telegram-bot directory
+            elif [ -d build/install/telegram-bot ]; then
+              cp -r build/install/telegram-bot/lib/* $out/lib/
+              cp build/install/telegram-bot/bin/* $out/bin/
+              chmod +x $out/bin/*
+            else
+              echo "No installation directory found"
+              find build -type d
+              exit 1
             fi
           '';
           
