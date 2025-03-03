@@ -8,30 +8,28 @@
       url = "github:edolstra/flake-compat";
       flake = false;
     };
+    gradle2nix = {
+      url = "github:tadfisher/gradle2nix/v2";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, flake-compat, ... }:
+  outputs = { self, nixpkgs, flake-utils, flake-compat, gradle2nix, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         jdk = pkgs.jdk21;
         
-        telegram-bot = pkgs.buildGradlePackage {
+        telegram-bot = gradle2nix.builders.${system}.buildGradlePackage {
           pname = "telegram-bot";
           version = builtins.readFile ./VERSION;
           
           src = ./.;
           
-          nativeBuildInputs = [ jdk ];
+          lockFile = ./gradle.lock;
           
-          gradleFlags = [ "installDist" ];
-          
-          gradle = pkgs.gradle;
-          
-          gradlePackage = "telegram-bot";
-          
-          outputs = [ "out" ];
-          
+          gradleInstallFlags = [ "installDist" ];
+                    
           installPhase = ''
             mkdir -p $out
             cp -r build/install/thoughtsntea-bot/* $out/
