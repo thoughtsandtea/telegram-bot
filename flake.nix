@@ -15,10 +15,14 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         jdk = pkgs.temurin-bin-23;
-      in {
-        packages.default = pkgs.stdenv.mkDerivation {
-          pname = "thoughtsntea-bot";
-          version = builtins.readFile ./VERSION;
+        
+        version = builtins.readFile ./VERSION;
+        appName = "thoughtsntea-bot";
+        
+        # Create application package
+        app = pkgs.stdenv.mkDerivation {
+          pname = appName;
+          version = version;
           
           src = ./.;
           
@@ -43,23 +47,58 @@
             platforms = pkgs.lib.platforms.all;
           };
         };
+        
+        # Create OCI container image
+        dockerImage = pkgs.dockerTools.buildLayeredImage {
+          name = appName;
+          tag = version;
+          
+          contents = [
+            app
+            pkgs.coreutils
+          ];
+          
+          config = {
+            Cmd = [ "${app}/bin/thoughtsntea-bot" ];
+            WorkingDir = "/data";
+            Volumes = {
+              "/data" = {};
+            };
+          };
+        };
+        
+      in {
+        packages = {
+          default = app;
+          dockerImage = dockerImage;
+        };
 
         apps.default = flake-utils.lib.mkApp {
-          drv = self.packages.${system}.default;
-          name = "thoughtsntea-bot";
+          drv = app;
+          name = appName;
           exePath = "/bin/thoughtsntea-bot";
         };
+        
+        # Additional image formats
+        packages.ociImage = dockerImage;
+        packages.container = dockerImage;
 
         devShells.default = pkgs.mkShell {
           buildInputs = [
             jdk
             pkgs.gradle
+            pkgs.skopeo  # For container image manipulation
           ];
           
           shellHook = ''
             echo "TeaClub Telegram Bot development environment"
             echo "JDK version: $(java -version 2>&1 | head -n 1)"
             echo "Gradle version: $(gradle --version | grep Gradle | head -n 1)"
+            echo ""
+            echo "Available commands:"
+            echo "  nix build .#dockerImage - Build OCI container image"
+            echo "  nix run .#default - Run the application directly"
+            echo "  skopeo inspect docker-archive:./result - Inspect the container image"
           '';
         };
       }

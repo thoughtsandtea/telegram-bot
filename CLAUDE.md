@@ -27,6 +27,12 @@ nix run
 
 # Check flake
 nix flake check
+
+# Build container image
+nix build .#dockerImage
+
+# Load the image into Docker
+docker load < result
 ```
 
 ## Docker Commands
