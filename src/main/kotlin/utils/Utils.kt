@@ -1,4 +1,4 @@
-package dev.teaguild.thoughtsntea.utils
+package club.thoughtsandtea.thoughtsntea.utils
 
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.chat.get.getChatAdministrators

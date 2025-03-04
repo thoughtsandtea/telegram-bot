@@ -1,4 +1,4 @@
-package dev.teaguild.thoughtsntea
+package club.thoughtsandtea.thoughtsntea
 
 import dev.inmo.kslog.common.TagLogger
 import dev.inmo.kslog.common.i
@@ -11,17 +11,17 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onComman
 import dev.inmo.tgbotapi.extensions.utils.fromUserOrNull
 import dev.inmo.tgbotapi.types.reactions.Reaction
 import dev.inmo.tgbotapi.types.toChatId
-import dev.teaguild.thoughtsntea.TastingState.*
-import dev.teaguild.thoughtsntea.commands.setConfigCommand
-import dev.teaguild.thoughtsntea.commands.showConfigCommand
-import dev.teaguild.thoughtsntea.listeners.observeConfigToBotScheduler
-import dev.teaguild.thoughtsntea.listeners.observeConfigToSave
-import dev.teaguild.thoughtsntea.listeners.observeParticipantsCount
-import dev.teaguild.thoughtsntea.listeners.observeSessionToLog
-import dev.teaguild.thoughtsntea.utils.getenvOrFail
-import dev.teaguild.thoughtsntea.utils.inGroupChat
-import dev.teaguild.thoughtsntea.utils.isFromAdministratorUser
-import dev.teaguild.thoughtsntea.utils.replyHtml
+import club.thoughtsandtea.thoughtsntea.TastingState.*
+import club.thoughtsandtea.thoughtsntea.commands.setConfigCommand
+import club.thoughtsandtea.thoughtsntea.commands.showConfigCommand
+import club.thoughtsandtea.thoughtsntea.listeners.observeConfigToBotScheduler
+import club.thoughtsandtea.thoughtsntea.listeners.observeConfigToSave
+import club.thoughtsandtea.thoughtsntea.listeners.observeParticipantsCount
+import club.thoughtsandtea.thoughtsntea.listeners.observeSessionToLog
+import club.thoughtsandtea.thoughtsntea.utils.getenvOrFail
+import club.thoughtsandtea.thoughtsntea.utils.inGroupChat
+import club.thoughtsandtea.thoughtsntea.utils.isFromAdministratorUser
+import club.thoughtsandtea.thoughtsntea.utils.replyHtml
 import kotlinx.coroutines.runBlocking
 import java.util.*
 

@@ -1,10 +1,10 @@
-package dev.teaguild.thoughtsntea.commands
+package club.thoughtsandtea.thoughtsntea.commands
 
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
-import dev.teaguild.thoughtsntea.TeaTastingSession
-import dev.teaguild.thoughtsntea.utils.isFromAdministratorUser
-import dev.teaguild.thoughtsntea.utils.replyHtml
+import club.thoughtsandtea.thoughtsntea.TeaTastingSession
+import club.thoughtsandtea.thoughtsntea.utils.isFromAdministratorUser
+import club.thoughtsandtea.thoughtsntea.utils.replyHtml
 import java.time.format.TextStyle
 import java.util.*
 

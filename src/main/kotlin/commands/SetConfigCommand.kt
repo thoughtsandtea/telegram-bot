@@ -1,12 +1,12 @@
-package dev.teaguild.thoughtsntea.commands
+package club.thoughtsandtea.thoughtsntea.commands
 
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onCommand
-import dev.teaguild.thoughtsntea.TeaTastingSession
-import dev.teaguild.thoughtsntea.utils.emptyEnumSet
-import dev.teaguild.thoughtsntea.utils.isFromAdministratorUser
-import dev.teaguild.thoughtsntea.utils.replyHtml
+import club.thoughtsandtea.thoughtsntea.TeaTastingSession
+import club.thoughtsandtea.thoughtsntea.utils.emptyEnumSet
+import club.thoughtsandtea.thoughtsntea.utils.isFromAdministratorUser
+import club.thoughtsandtea.thoughtsntea.utils.replyHtml
 import java.time.DateTimeException
 import java.time.DayOfWeek
 import java.time.LocalTime

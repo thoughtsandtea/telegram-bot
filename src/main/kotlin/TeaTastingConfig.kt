@@ -1,7 +1,7 @@
-package dev.teaguild.thoughtsntea
+package club.thoughtsandtea.thoughtsntea
 
-import dev.teaguild.thoughtsntea.utils.emptyEnumSet
-import dev.teaguild.thoughtsntea.utils.enumSetOf
+import club.thoughtsandtea.thoughtsntea.utils.emptyEnumSet
+import club.thoughtsandtea.thoughtsntea.utils.enumSetOf
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException

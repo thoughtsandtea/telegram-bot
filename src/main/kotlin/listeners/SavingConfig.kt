@@ -1,7 +1,7 @@
-package dev.teaguild.thoughtsntea.listeners
+package club.thoughtsandtea.thoughtsntea.listeners
 
-import dev.teaguild.thoughtsntea.TeaTastingSession
-import dev.teaguild.thoughtsntea.saveConfig
+import club.thoughtsandtea.thoughtsntea.TeaTastingSession
+import club.thoughtsandtea.thoughtsntea.saveConfig
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn

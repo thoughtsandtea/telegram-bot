@@ -45,7 +45,7 @@ docker run -e THOUGHTSNTEA_TELEGRAM_BOT_TOKEN=token -e THOUGHTSNTEA_TELEGRAM_CHA
 ```
 
 ## Code Style Guidelines
-- **Package Structure**: Use `dev.teaguild.thoughtsntea` namespace
+- **Package Structure**: Use `club.thoughtsandtea.thoughtsntea` namespace
 - **Imports**: Order by standard library, third-party libraries, then project imports
 - **Formatting**: Follow Kotlin official style guide with 4-space indentation
 - **Error Handling**: Use `@Throws` annotations; prefer safe handling with defaults

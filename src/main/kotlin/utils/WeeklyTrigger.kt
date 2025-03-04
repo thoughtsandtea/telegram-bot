@@ -1,4 +1,4 @@
-package dev.teaguild.thoughtsntea.utils
+package club.thoughtsandtea.thoughtsntea.utils
 
 import dev.starry.ktscheduler.triggers.Trigger
 import java.time.DayOfWeek

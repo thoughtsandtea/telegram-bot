@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-group = "dev.teaguild"
+group = "club.thoughtsandtea"
 version = "0.0.1"
 File("VERSION").writeText(version.toString())
 
@@ -27,4 +27,4 @@ kotlin {
     }
 }
 
-application.mainClass = "dev.teaguild.thoughtsntea.MainKt"
+application.mainClass = "club.thoughtsandtea.thoughtsntea.MainKt"
