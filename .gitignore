@@ -4,3 +4,8 @@ build/
 thoughtsntea.json
 .kotlin/
 VERSION
+
+# Nix/direnv
+.direnv/
+result
+result-*

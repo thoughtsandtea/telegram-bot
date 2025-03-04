@@ -29,6 +29,8 @@ The bot requires the following environment variables:
 
 ### Installation
 
+#### Using Gradle
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/TeaClub/telegram-bot.git
@@ -45,9 +47,39 @@ The bot requires the following environment variables:
    ./gradlew run
    ```
 
-### Docker
+#### Using Nix (recommended)
 
-You can also run the bot using Docker:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/TeaClub/telegram-bot.git
+   cd telegram-bot
+   ```
+
+2. If you have direnv installed (recommended):
+   ```bash
+   direnv allow
+   ```
+   
+   Or directly activate the Nix shell:
+   ```bash
+   nix develop
+   ```
+
+3. Build the project:
+   ```bash
+   nix build
+   ```
+
+4. Run the application (after setting up environment variables):
+   ```bash
+   nix run
+   ```
+
+### Container Support
+
+#### Traditional Docker
+
+You can run the bot using Docker:
 
 ```bash
 # Build the Docker image
@@ -56,6 +88,27 @@ docker build -t thoughtsntea-bot .
 # Run the container
 docker run -e THOUGHTSNTEA_TELEGRAM_BOT_TOKEN=your_token -e THOUGHTSNTEA_TELEGRAM_CHAT_ID=your_chat_id thoughtsntea-bot
 ```
+
+#### Nix Container (recommended)
+
+You can build and run OCI-compatible container images using Nix:
+
+```bash
+# Build the container image
+nix build .#dockerImage
+
+# Load the image into Docker
+docker load < result
+
+# Run the container
+docker run -e THOUGHTSNTEA_TELEGRAM_BOT_TOKEN=your_token -e THOUGHTSNTEA_TELEGRAM_CHAT_ID=your_chat_id thoughtsntea-bot:0.0.1
+```
+
+The Nix-built container offers several advantages:
+- Reproducible builds with precise dependency versions
+- Minimal image size with only required dependencies
+- No build-time secrets leakage
+- Built without Docker daemon
 
 ## Usage
 
